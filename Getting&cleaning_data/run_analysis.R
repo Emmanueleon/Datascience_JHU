@@ -44,8 +44,7 @@ interested_features <- features[features_grep, 2]%>%
           gsub(pattern = "Mag", replacement = "Magnitude")%>%
           gsub(pattern = "-mean", replacement = "Mean")%>%
           gsub(pattern = "-std", replacement = "SD")%>%
-          gsub(pattern = "[()]", replacement = "")%>%
-          print()
+          gsub(pattern = "[()]", replacement = "")
 
 ## 3.3 Test table 
 subject_test <- read.csv("proyect/UCI HAR Dataset/test/subject_test.txt", header = FALSE)
@@ -89,15 +88,13 @@ activity_bysubject <- merged_tbl%>%
                        names_to = "variable")%>%
           dplyr::group_by(subject_id, activity,variable)%>%
           summarise(mean=mean(value), .groups = "drop")%>%
-          pivot_wider(names_from = variable, values_from = mean)%>%
-          print()
+          pivot_wider(names_from = variable, values_from = mean)
 
 # 5. Export
 ############################################################################################################
 write_csv(activity_bysubject, "proyect/Mean_subject_activity.csv")
 write.table(activity_bysubject, "proyect/Mean_subject_activity.txt", row.names = FALSE)
-read.table("proyect/Mean_subject_activity.txt", row.names = FALSE)         
-          
+
         
 
 
