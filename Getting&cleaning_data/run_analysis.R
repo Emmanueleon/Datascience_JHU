@@ -95,7 +95,8 @@ activity_bysubject <- merged_tbl%>%
 # 5. Export
 ############################################################################################################
 write_csv(activity_bysubject, "proyect/Mean_subject_activity.csv")
-          
+write.table(activity_bysubject, "proyect/Mean_subject_activity.txt", row.names = FALSE)
+read.table("proyect/Mean_subject_activity.txt", row.names = FALSE)         
           
         
 
