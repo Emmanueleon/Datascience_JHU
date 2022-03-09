@@ -31,7 +31,7 @@ We should create one R script called run_analysis.R that does the following:
 5. From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
 
 ## About script
-The ´run_analysis.R´ script its divided in 6 steps. 
+The ´run_analysis.R´ script is divided in 6 steps. 
 
 1. Enviroment preparation.
   * Clean history.
