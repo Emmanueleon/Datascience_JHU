@@ -5,13 +5,61 @@ output:
     keep_md: true
 ---
 
+## Introduction
+The database contains a large amount of information on personal movement using activity tracking devices. These devices collect data in 5-minute intervals throughout the day from an anonymous individual during the October and November 2012 months and include the number of steps taken in 5-minute intervals each day.
+
+## Enviroment preparation 
+```{r}
+## Clean the enviroment
+rm(list=ls())
+
+## Load libraries
+library(tidyverse)
+```
+
 
 ## Loading and preprocessing the data
+```{r}
+## Load the data
+db <- read_csv("../data/activity.zip")
 
+db%>%glimpse
+
+db%>%
+          summarise_all(~sum(is.na(.)))
+
+```
+
+We can observe that database contains only 3 variables and 17 568 observations. But `steps` variable contains a large number of NA's. 
 
 
 ## What is mean total number of steps taken per day?
+```{r}
+## Calculate total number of steps taken per day
+total_steps <- db%>%
+          drop_na()%>%
+          group_by(date)%>%
+          summarise(sum_steps=sum(steps, na.rm=TRUE))%>%
+          print()
 
+
+## Make a histogram of the total number of steps taken each day
+with(total_steps, hist(sum_steps, col="green", 
+               main="Total number steps per day",
+               xlab="Steps in a day"))
+
+
+## Calculate and report the mean and median of the total number of steps taken per day
+          
+
+
+```
+```{r}
+
+with(db, hist(steps~date))
+
+
+```
 
 
 ## What is the average daily activity pattern?
