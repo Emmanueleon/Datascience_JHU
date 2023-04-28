@@ -6,9 +6,14 @@ output:
 ---
 
 ## Introduction
+___
 The database contains a large amount of information on personal movement using activity tracking devices(atd). These devices collect data in 5-minute intervals throughout the day from an anonymous individual during the October and November 2012 months and include the number of steps taken in 5-minute intervals each day.
 
+
+
 ## Enviroment preparation 
+____
+A good practice before starting any project is to clean the environment and load libraries to be used. 
 ```{r}
 ## Clean the enviroment
 rm(list=ls())
@@ -19,6 +24,8 @@ library(tidyverse)
 
 
 ## Loading and preprocessing the data
+___
+We load the data and take an overview of its structure.
 ```{r}
 ## Load the data
 raw_tracking <- read_csv("../data/activity.zip")
@@ -31,11 +38,14 @@ tracking_df <- raw_tracking%>%
           drop_na()
 
 ```
-
 We can observe that database contains only 3 variables and 17 568 observations. But `steps` variable contains a large number of NA's. 
 
 
-## What is mean total number of steps taken per day?
+## Questions 
+_____
+### Question 1
+What is mean total number of steps taken per day?
+
 ```{r}
 ## Calculate total number of steps taken per day
 total_steps <- tracking_df%>%
@@ -57,8 +67,12 @@ total_steps%>%
 
 
 ```
+The average total number of steps per day is **10766**, and the median is **10765**. According the results we can say that data has a normal distribution.
 
-## What is the average daily activity pattern?
+
+### Question 2
+What is the average daily activity pattern?
+
 ```{r}
 # Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 mean_interval <- tracking_df%>%
@@ -78,9 +92,10 @@ mean_interval%>%
           pull(interval)
 
 ```
+The interval with the maximum mean number of steps is **835**, with a mean of 206.17 steps. 
 
-
-## Imputing missing values
+### Question 3
+Imputing missing values
 ```{r}
 # Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NANAs)
 raw_tracking%>%
@@ -116,11 +131,39 @@ fill_total_steps%>%
 
 # Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
-# While there is no difference between the mean, a subtle difference exists between the median values.
-# I believe that the impact of imputing missing data depends on the distribution of the data. 
-
-
 ```
 
+While there is **no difference between the mean**, a **subtle difference exists between the median** values. The impact of imputing missing data may depends on the data distribution. 
 
-## Are there differences in activity patterns between weekdays and weekends?
+
+### Question 4
+Are there differences in activity patterns between weekdays and weekends?
+
+```{r}
+# Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
+fill_tracking_daytype <- fill_tracking%>%
+          mutate(day=weekdays(date), 
+                 day_type=case_when(day=="Saturday" | day=="Sunday"~ "weekend", 
+                                    TRUE~ "weekday"))
+
+# Make a panel plot containing a time series plot (i.e. type = "l"type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
+
+## Calculate the mean steps interval by day type
+fill_mean_interval <- fill_tracking_daytype%>%
+          group_by(interval, day_type)%>%
+          summarise(mean_steps=mean(steps))%>%
+          print()
+
+## Graph
+fill_mean_interval%>%
+          ggplot(aes(x=interval, y=mean_steps))+
+          geom_line(color="blue")+
+          facet_wrap(.~day_type, nrow = 2)+
+          labs(title = "Time series plot of average steps across all days", 
+               subtitle = "By type day \n", 
+               x=" \n Interval", y="Average number of steps \n")+
+          theme_linedraw()+
+          theme(strip.background = element_rect(fill = "gray"), 
+                strip.text.x  = element_text(size=10, color="black", face = "bold"))
+
+```
