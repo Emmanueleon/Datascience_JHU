@@ -167,3 +167,5 @@ fill_mean_interval%>%
                 strip.text.x  = element_text(size=10, color="black", face = "bold"))
 
 ```
+
+There are different patterns according type of day. 
