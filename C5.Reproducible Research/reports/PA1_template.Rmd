@@ -6,7 +6,7 @@ output:
 ---
 
 ## Introduction
-The database contains a large amount of information on personal movement using activity tracking devices. These devices collect data in 5-minute intervals throughout the day from an anonymous individual during the October and November 2012 months and include the number of steps taken in 5-minute intervals each day.
+The database contains a large amount of information on personal movement using activity tracking devices(atd). These devices collect data in 5-minute intervals throughout the day from an anonymous individual during the October and November 2012 months and include the number of steps taken in 5-minute intervals each day.
 
 ## Enviroment preparation 
 ```{r}
@@ -21,12 +21,14 @@ library(tidyverse)
 ## Loading and preprocessing the data
 ```{r}
 ## Load the data
-db <- read_csv("../data/activity.zip")
+raw_tracking <- read_csv("../data/activity.zip")
 
-db%>%glimpse
+## Inspect the data
+raw_tracking%>%glimpse
 
-db%>%
-          summarise_all(~sum(is.na(.)))
+## Process the data cleaning the NAs value
+tracking_df <- raw_tracking%>%
+          drop_na()
 
 ```
 
@@ -36,8 +38,7 @@ We can observe that database contains only 3 variables and 17 568 observations. 
 ## What is mean total number of steps taken per day?
 ```{r}
 ## Calculate total number of steps taken per day
-total_steps <- db%>%
-          drop_na()%>%
+total_steps <- tracking_df%>%
           group_by(date)%>%
           summarise(sum_steps=sum(steps, na.rm=TRUE))%>%
           print()
@@ -50,24 +51,76 @@ with(total_steps, hist(sum_steps, col="green",
 
 
 ## Calculate and report the mean and median of the total number of steps taken per day
-          
+total_steps%>%
+          summarise(mean_steps=mean(sum_steps, na.rm=TRUE), 
+                    median_steps=median(sum_steps, na.rm = TRUE))
 
 
 ```
-```{r}
-
-with(db, hist(steps~date))
-
-
-```
-
 
 ## What is the average daily activity pattern?
+```{r}
+# Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+mean_interval <- tracking_df%>%
+          group_by(interval)%>%
+          summarise(mean_steps=mean(steps))%>%
+          print()
 
+with(mean_interval, plot(x= interval, y= mean_steps, type="l", col="blue", 
+               main="Time series plot of average steps across all days \n",
+               xlab="Interval", ylab="Average number of steps"))
+
+
+# Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+mean_interval%>%
+          arrange(desc(mean_steps))%>%
+          slice(1)%>%
+          pull(interval)
+
+```
 
 
 ## Imputing missing values
+```{r}
+# Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NANAs)
+raw_tracking%>%
+          summarise_all(~sum(is.na(.)))
 
+# Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
+
+# One possibility is to use the mean 
+
+# Create a new dataset that is equal to the original dataset but with the missing data filled in.
+fill_tracking <- raw_tracking%>%
+          mutate(across(everything(), \(.) replace_na(., mean(., na.rm = TRUE))),
+                 across(where(is.numeric),round,4))%>%
+          print()
+
+
+## Calculate total number of steps taken per day
+fill_total_steps <- fill_tracking%>%
+          group_by(date)%>%
+          summarise(sum_steps=sum(steps, na.rm=TRUE))%>%
+          print()
+
+## Make a histogram of the total number of steps taken each day 
+with(fill_total_steps, hist(sum_steps, col="green", 
+               main="Total number steps per day (Imputed data)",
+               xlab="Steps in a day"))
+
+
+# Calculate and report the mean and median total number of steps taken per day. 
+fill_total_steps%>%
+          summarise(mean_steps=mean(sum_steps, na.rm=TRUE), 
+                    median_steps=median(sum_steps, na.rm=TRUE))
+
+# Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+
+# While there is no difference between the mean, a subtle difference exists between the median values.
+# I believe that the impact of imputing missing data depends on the distribution of the data. 
+
+
+```
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
